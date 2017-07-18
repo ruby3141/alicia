@@ -35,7 +35,7 @@ def main():
 
 		fired = False
 		for command in module.commands:
-			if all(re.match(condition[1], pmsg[condition[0]]) for condition in command[0]):
+			if all(re.fullmatch(condition[1], pmsg[condition[0]]) for condition in command[0]):
 				fired = True
 				resps = command[1](pmsg)
 				break
