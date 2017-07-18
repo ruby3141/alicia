@@ -9,7 +9,7 @@ db = sqlite3.connect("data.db")
 
 def gfl_expc(pmsg):
 	_, __, s, f = pmsg[-1].split()
-	if start.isdigit() and fin.isdigit() and 0 < start <= 100 and 0 < fin <= 100:
+	if s.isdigit() and f.isdigit() and 0 < s <= 100 and 0 < f <= 100:
 		start = int(s)
 		fin = int(f)
 		result = 0
