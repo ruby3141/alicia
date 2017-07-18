@@ -34,8 +34,7 @@ commands.append(([(1,r"PRIVMSG"), \
 def gfl_produce(pmsg):
 	if re.fullmatch(r"(?i):\./(gfl|소녀전선|소전) (produce|prod|제조) [0-9]{0,2}:[0-5][0-9]", \
 		pmsg[-1]) is not None:
-		_, __, t = pmsg[-1].split()
-		m, s = t.split(":")
+		m, s = ("0"+pmsg[-1].split()[2]).split(":")
 		minute, second = int(m), int(s)
 		time = minute * 60 + second
 		c = db.cursor()
