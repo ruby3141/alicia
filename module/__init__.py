@@ -1,6 +1,6 @@
 import importlib
 
-__all__ = ["basis"]
+__all__ = ["basis", "gfl"]
 
 packages = []
 commands = []
