@@ -2,30 +2,22 @@
 import socket
 import re
 import importlib
+import configparser
 import module
 
-server = "irc.ozinger.org"
-port = 6667
-encoding = "utf-8"
-delm = "\r\n"
-
-nickname = "아리시아"
-username = "alicia_bot"
-realname = "./help 나 ./도움 | 언니 대신 일하러 나왔어요"
-chanlist = ["#xgc"]
+c = configparser.ConfigParser()
+c.read("config.ini")
 
 def main():
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.settimeout(128)
-	s.connect((server, port))
-	sendmsg(s, "NICK " + nickname)
-	sendmsg(s, "USER %s 0 * :%s" % (username, realname))
-	recvr = snlrecvr(s, 4096)
+	s = connect()
+	sendmsg(s, "NICK " + c['Bot']['nickname'])
+	sendmsg(s, "USER %s 0 * :%s" % (c['Bot']['username'], c['Bot']['realname']))
+	recvr = snlrecvr(s, int(c['Connection']['bufsize']))
 	msgsl = re.compile(r"(?:^:)(.*?)(?:\s:)(.*)")
 	while True:
 		msg = next(recvr)
 
-		sl = msgsl.match(msg)
+		sl = msgsl.fullmatch(msg)
 		if sl is not None:
 			pmsg = sl.group(1).split() + [":" + sl.group(2)]
 		else:
@@ -44,7 +36,7 @@ def main():
 			fired = False
 			for resp in resps:
 				if resp[0] == ":":
-					if pmsg[2] == nickname:
+					if pmsg[2] == c['Bot']['nickname']:
 						target, _, __ = re.split(r"!|@", pmsg[0])
 					else:
 						target = pmsg[2]
@@ -54,7 +46,7 @@ def main():
 		elif pmsg[0] == "PING":
 			sendmsg(s, "PONG " + pmsg[1])
 		elif pmsg[1] == "001":
-			for chan in chanlist:
+			for chan in re.split(r", *", c['Server']['channel']):
 				sendmsg(s, "JOIN " + chan)
 		elif pmsg[1] == "PRIVMSG" and pmsg[-1] == ":./reload":
 			module.mreload()
@@ -65,21 +57,29 @@ def main():
 				target = pmsg[2]
 			sendmsg(s, "PRIVMSG %s :로드 완료!"%(target))
 
+def connect():
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+	s.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 60)
+	s.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 30)
+	s.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 5)
+	s.settimeout(int(c['Connection']['timeout']))
+	s.connect((c['Server']['host'], int(c['Server']['port'])))
+	return s
+
 def sendmsg(s, msg):
-	s.sendall((msg + delm).encode(encoding))
+	s.sendall((msg + '\r\n').encode(c['Server']['encoding']))
 	print("<< " + msg)
 
 def snlrecvr(s, bufsize): #receive from socket s and yield it line by line.
 	carry = ""
 	while True:
-		data = s.recv(bufsize).decode(encoding)
-		lines = data.split(delm)
+		data = s.recv(bufsize).decode(c['Server']['encoding'])
+		lines = data.split('\r\n')
 		lines[0] = carry + lines[0]
-		for i, line in enumerate(lines):
-			if i == len(lines) - 1:
-				carry = line
-			else:
-				print(">> " + line)
-				yield line
+		for i, line in enumerate(lines[:-1]):
+			print(">> " + line)
+			yield line
+		carry = lines[-1]
 
 main()
