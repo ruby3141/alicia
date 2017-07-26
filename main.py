@@ -3,10 +3,13 @@ import socket
 import re
 import importlib
 import configparser
+import logging
 import module
 
 c = configparser.ConfigParser()
 c.read("config.ini")
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def main():
 	s = connect()
@@ -26,11 +29,15 @@ def main():
 				pmsg[0] = pmsg[0][1:]
 
 		fired = False
-		for command in module.commands:
-			if all(re.fullmatch(condition[1], pmsg[condition[0]]) for condition in command[0]):
-				fired = True
-				resps = command[1](pmsg)
-				break
+		try:
+			for command in module.commands:
+				if all(re.fullmatch(cond[1], pmsg[cond[0]]) for cond in command[0]):
+					fired = True
+					resps = command[1](pmsg)
+					break
+		except Exception as e:
+			logger.exception(e)
+			resps = [":에러 발생!"]
 
 		if fired:
 			fired = False

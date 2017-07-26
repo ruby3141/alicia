@@ -10,5 +10,6 @@
 	channel: #chan1, #chan2, #chan3
 
 [Connection]
-	timeout: 121
+	#if it didn't get ping but connection is still alive, wait for the next ping to arrive
+	timeout: 241
 	bufsize: 4096
