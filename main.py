@@ -58,7 +58,7 @@ def main():
 		elif pmsg[1] == "PRIVMSG" and pmsg[-1] == ":./reload":
 			module.mreload()
 			importlib.reload(module)
-			if pmsg[2] == nickname:
+			if pmsg[2] == c['Bot']['nickname']:
 				target, _, __ = re.split(r"!|@", pmsg[0])
 			else:
 				target = pmsg[2]
