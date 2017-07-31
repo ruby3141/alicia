@@ -8,7 +8,7 @@ comstring = "./(gfl|소녀전선|소전)"
 db = sqlite3.connect("data.db")
 
 def gfl_expc(pmsg):
-	if re.fullmatch(r"(?i):\./(gfl|소녀전선|소전) (exp|경험치|경) [0-9]+ [0-9]+", \
+	if re.fullmatch(r"(?i):\./(gfl|소녀전선|소전) (exp|경험치|경) [1-9][0-9]* [1-9][0-9]*", \
 		pmsg[-1]) is not None:
 		_, __, s, f = pmsg[-1].split()
 		if int(s) <= 100 and 0 < int(f) <= 100:
@@ -19,12 +19,12 @@ def gfl_expc(pmsg):
 				start, fin = fin, start
 			if start < fin:
 				c = db.cursor()
-				c.execute("SELECT sum(experience) FROM (SELECT * FROM gfl_expc WHERE lv" + \
-				" BETWEEN ? AND ?)", (start, fin - 1))
-				result = c.fetchone()[0];
+				c.execute("SELECT experience FROM gfl_expc WHERE lv = ? or lv = ?",(start, fin))
+				result = c.fetchall();
+				exp = result[1][0] - result[0][0]
 				c.close()
 			return [":필요 경험치는 %d이고, 작전보고서는 %d개가 필요해요." % \
-			(result, math.ceil(result / 3000))]
+			(exp, math.ceil(exp / 3000))]
 	c = pmsg[-1].split()
 	return [":'%s %s [시작레벨] [목표레벨]'처럼 입력해 주세요!"%(c[0][1:],c[1])]
 
