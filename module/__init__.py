@@ -1,25 +1,16 @@
 import importlib
+from ..src import router
 
-__all__ = ["basis", "gfl"]
+__all__ = []
+pkgs = []
 
-packages = []
-commands = []
-comstrings = []
-comstring = ""
-
+root = router.Router()
 for pname in __all__:
-	packages.append(importlib.import_module("." + pname, "module"))
+	pkg = importlib.import_module("." + pname, __name__)
+	pkg.set(root)
+	pkgs.append(pkg)
 
-for package in packages:
-	commands += package.commands
-	comstrings.append(package.comstring)
-
-comstring = " | ".join(comstrings)
-commands.append(([(1, r"(?i)PRIVMSG"), (-1, r"(?i):./(help|도움)")], \
-	lambda pmsg: [":명령어 목록 : " + comstring]))
-
-commands.append(([(1, r"(?i)INVITE")], lambda pmsg: ["JOIN "+pmsg[-1]]))
-
-def mreload():
-	for package in packages:
-		importlib.reload(package)
+def reload():
+	for pkg in pkgs:
+		pkg.reload()
+		importlib.reload(pkg)
