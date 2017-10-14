@@ -17,3 +17,12 @@ CREATE TABLE gfl_produce
 );
 
 .import module/gfl/gfl_produce.csv gfl_produce
+
+CREATE TABLE gfl_pequip
+(
+	time integer not null,
+	rarity integer not null,
+	equip varchar[128] not null
+);
+
+.import module/gfl/gfl_pequip.csv gfl_pequip

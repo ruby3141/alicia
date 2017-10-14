@@ -1,0 +1,15 @@
+[Bot]
+	nickname: alicia
+	username: alicia_bot
+	realname: ./help for more information
+
+[Server]
+	host: example.com
+	port: 6666
+	encoding: utf-8
+	channel: #chan1, #chan2, #chan3
+
+[Connection]
+	#if it didn't get ping but connection is still alive, wait for the next ping to arrive
+	timeout: 241
+	bufsize: 4096
