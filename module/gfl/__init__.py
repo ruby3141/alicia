@@ -11,20 +11,27 @@ def gfl_expc(pmsg):
 	if re.fullmatch(r"(?i):\./(gfl|소녀전선|소전) (exp|경험치|경) [1-9][0-9]* [1-9][0-9]*", \
 		pmsg[-1]) is not None:
 		_, __, s, f = pmsg[-1].split()
-		if int(s) <= 100 and 0 < int(f) <= 100:
+		if 0 <= int(s) <= 120 and 0 < int(f) <= 120:
 			start = int(s)
 			fin = int(f)
 			result = 0
 			if start > fin:
 				start, fin = fin, start
-			if start < fin:
+			elif start == fin:
+				return ["시작과 끝 레벨이 같아요!"]
+			else:
 				c = db.cursor()
 				c.execute("SELECT experience FROM gfl_expc WHERE lv = ? or lv = ?",(start, fin))
 				result = c.fetchall();
-				exp = result[1][0] - result[0][0]
 				c.close()
-			return [":필요 경험치는 %d이고, 작전보고서는 %d개가 필요해요." % \
-			(exp, math.ceil(exp / 3000))]
+				exp = result[1][0] - result[0][0]
+				if fin <= 100:
+					return [":필요 경험치는 %d이고, 작전보고서는 %d개가 필요해요." % \
+						(exp, math.ceil(exp / 3000))]
+				else:
+					rexp = 1631600 - result[0][0] + (result[1][0] // 2)
+					return [":필요 경험치는 %d(%d)이고, 작전보고서는 %d(%d)개가 필요해요." % \
+						(exp, rexp, math.ceil(exp / 3000), math.ceil(rexp / 3000)),]
 	c = pmsg[-1].split()
 	return [":'%s %s [시작레벨] [목표레벨]'처럼 입력해 주세요!"%(c[0][1:],c[1])]
 
