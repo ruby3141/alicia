@@ -54,6 +54,29 @@ commands.append(([(1,r"PRIVMSG"), \
 	(-1, r"(?i):\./(gfl|소녀전선|소전) (produce|prod|제조)( .*)?")], gfl_produce))
 
 def gfl_pequip(pmsg):
+	if re.fullmatch(r"(?i):\./(gfl|소녀전선|소전) (equip|장비) [0-9]{0,2}:[0-5][0-9]", \
+		pmsg[-1]) is not None:
+		m, s = ("0"+pmsg[-1].split()[2]).split(":")
+		minute, second = int(m), int(s)
+		time = minute * 60 + second
+		c = db.cursor()
+		c.execute("SELECT * from gfl_pequip where time = ?", (time,))
+		dbrs = c.fetchall()
+		if dbrs is not None and len(dbrs) != 0:
+			result = []
+			for dbr in dbrs:
+				if dbr[1] == 0:
+					result.append(":[%s] %s"%(dbr[2],dbr[3]))
+				else:
+					result.append(":★%d %s: %s"%(dbr[1],dbr[2],dbr[3]))
+		else:
+			result = [":해당하는 결과가 없어요!"]
+		return result
+	c = pmsg[-1].split()
+	return [":'%s %s 시:분'처럼 입력해 주세요!"%(c[0][1:],c[1])]
+
+"""
+def gfl_pequip(pmsg):
 	if re.fullmatch(r"(?i):\./(gfl|소녀전선|소전) (equip|장비) [0-9]{0,2}", \
 		pmsg[-1]) is not None:
 		time = int(pmsg[-1].split()[-1])
@@ -69,7 +92,7 @@ def gfl_pequip(pmsg):
 		return result
 	c = pmsg[-1].split()
 	return [":'%s %s 분'처럼 입력해 주세요!"%(c[0][1:],c[1])]
-
+"""
 commands.append(([(1,r"PRIVMSG"), \
 	(-1, r"(?i):\./(gfl|소녀전선|소전) (equip|장비)( .*)?")], gfl_pequip))
 
