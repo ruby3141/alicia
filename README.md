@@ -3,8 +3,8 @@ Simple irc bot framework
 
 ## Dependency
  - Python3: ^3.4
-
-...that's all you need.
+ - Sqlite3 tested on 3.11.0
+ - BeautifulSoup4 : tested on 4.6.0
 
 ## How to Use
 edit config.example , and rename it as config.ini .
